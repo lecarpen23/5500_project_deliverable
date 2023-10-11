@@ -3,18 +3,15 @@
 python project_deliverable_2.py <<EOF
 Time
 No
-No
-No
+2
 Text
 No
 No
-No
 Quantitative
-No
+P1
 No
 No
 Qualitative
-No
 No
 No
 EOF

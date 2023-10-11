@@ -212,6 +212,8 @@ class TimeSeriesDataSet(DataSet):
             x_label = "Time"
             y_label = "Heartbeat"
         
+        #create a path to save the plot
+        path = 'visualizations/ECG_Time_Series_Scatter.png'
         #set the figure size
         plt.figure(figsize=(10, 5))
 
@@ -227,9 +229,15 @@ class TimeSeriesDataSet(DataSet):
         plt.xlabel(x_label)
         plt.ylabel(y_label)
 
-        #show the plot
-        plt.show()
+        #save the plot
+        plt.savefig(path)
+        #close the plot
+        plt.close()
 
+        # #show the plot
+        # plt.show()
+
+        path = 'visualizations/ECG_Time_Series_Line.png'
         plt.figure(figsize=(10, 5))
 
         #now create a line plot to show the distribution of the data with less noise
@@ -240,8 +248,13 @@ class TimeSeriesDataSet(DataSet):
         plt.xlabel(x_label)
         plt.ylabel(y_label)
 
-        #show the plot
-        plt.show()
+        #save the plot
+        plt.savefig(path)
+        #close the plot
+        plt.close()
+
+        # #show the plot
+        # plt.show()
 
 
 nltk.download('stopwords')
@@ -322,11 +335,26 @@ class TextDataSet(DataSet):
             x_label = ""
             y_label = ""
 
+
+        path = 'visualizations/word_cloud.png'
         #create a word cloud from the top 100 words
         cloud = wordcloud.WordCloud().generate(self.data['text'][0])
-        plt.imshow(cloud, interpolation='bilinear')
         plt.axis("off")
-        plt.show()
+        plt.title(title)
+        plt.xlabel(x_label)
+        plt.ylabel(y_label)
+        plt.imshow(cloud)
+
+        #save the plot
+        plt.savefig(path)
+
+        #close the plot
+        plt.close()
+
+        # plt.show()
+
+        path = 'visualizations/star_ratings.png'
+        plt.figure(figsize=(10, 5))
 
         #send self.data['stars'] to ints for histogram
         self.data['stars'] = self.data['stars'].astype(int)
@@ -350,7 +378,13 @@ class TextDataSet(DataSet):
         plt.title(title)
         plt.xlabel(x_label)
         plt.ylabel(y_label)
-        plt.show()
+
+        #save the plot
+        plt.savefig(path)
+        #close the plot
+        plt.close()
+
+        #plt.show()
 
 
 
@@ -431,6 +465,10 @@ class QuantDataSet(DataSet):
             x_label = "Week"
             y_label = "Normalized Sales"
 
+        path = f'visualizations/Normalized_Sales_{product_id}.png'
+
+        plt.figsize=(10, 6)
+
         plt.bar(data_names, vals)
         plt.title(title)
         plt.xlabel(x_label)
@@ -438,7 +476,12 @@ class QuantDataSet(DataSet):
         #get rid of x-axis labels because they are too long
         plt.xticks([])
 
-        plt.show()
+        #save the plot
+        plt.savefig(path)
+        #close the plot
+        plt.close()
+
+        #plt.show()
 
         #do the same for non-normalized sales
         data_names = []
@@ -464,13 +507,23 @@ class QuantDataSet(DataSet):
             x_label = "Week"
             y_label = "Total Sales"
 
+        path = 'visualizations/Total_Sales.png'
+
+        plt.figsize=(10, 6)
+
         plt.bar(data_names, total_sales)
         plt.title(title)
         plt.xlabel(x_label)
         plt.ylabel(y_label)
         #get rid of x-axis labels because they are too long
         plt.xticks([])
-        plt.show()
+
+        #save the plot
+        plt.savefig(path)
+        #close the plot
+        plt.close()
+
+        #plt.show()
         
 
 
@@ -562,13 +615,22 @@ class QualDataSet(DataSet):
 
         x_label_list = [val_labels[degree] for degree in degrees]
 
+        path = 'visualizations/Degrees.png'
+
+        plt.figure(figsize=(10, 10))
+
         plt.bar(x_label_list, counts)
         plt.title(title)
         plt.xlabel(x_label)
         plt.ylabel(y_label)
         #fix x ticks and rotate them to 60 degrees
-        plt.xticks(rotation = 60)
-        plt.show()
+        plt.xticks(rotation = 45)
+        #plt.show()
+
+        #save the plot
+        plt.savefig(path)
+        #close the plot
+        plt.close()
 
         #now I want to see what programming languages are recommended, 
         #creating a histogram of Q19
@@ -591,13 +653,23 @@ class QualDataSet(DataSet):
             x_label = "Language"
             y_label = "Frequency"
 
+        path = 'visualizations/First_Recommended_Language.png'
+
+        plt.figure(figsize=(10, 10))
+
         plt.bar(languages, counts)
         plt.title(title)
         plt.xlabel(x_label)
         plt.ylabel(y_label)
         #fix x ticks and rotate them to 60 degrees
-        plt.xticks(rotation = 60)
-        plt.show()
+        plt.xticks(rotation = 45)
+
+        #save the plot
+        plt.savefig(path)
+        #close the plot
+        plt.close()
+
+        #plt.show()
         
 
 #create class for the classifier 
@@ -688,40 +760,47 @@ if __name__ == "__main__":
     try:
         os.mkdir('cleaned_data')
     except:
-        pass
+        print("Couldnt make cleaned_data folder or it already exists")
 
     #create a folder called visualizations to store the visualizations from each of the data sets
     try:
         os.mkdir('visualizations')
     except:
-        pass
+        print("Couldnt make visualizations folder or it already exists")
 
     print("---Starting Test---")
     print("Testing Time Series Data Set...")
     time_data = TimeSeriesDataSet(paths['time'])
     time_data.clean()
-    print("First 5 rows of cleaned data: ")
-    print(time_data.data[:5])
+    np.savetxt('cleaned_data/cleaned_time_data.csv', time_data.data, delimiter=',', fmt='%s')
+    print("First row of cleaned data: ")
+    print(time_data.data[:1])
     time_data.explore()
 
+    print('\n')
     print("Testing Text Data Set...")
     text_data = TextDataSet(paths['text'])
     text_data.clean()
-    print("First 5 rows of cleaned data: ")
-    print(text_data.data[:5])
+    np.savetxt('cleaned_data/cleaned_text_data.csv', text_data.data, delimiter=',', fmt='%s')
+    print("First row of cleaned data: ")
+    print(text_data.data[:1])
     text_data.explore()
 
+    print('\n')
     print("Testing Quantitative Data Set...")
     quant_data = QuantDataSet(paths['quant'])
     quant_data.clean()
-    print("First 5 rows of cleaned data: ")
-    print(quant_data.data[:5])
+    np.savetxt('cleaned_data/cleaned_quant_data.csv', quant_data.data, delimiter=',', fmt='%s')
+    print("First 1 row of cleaned data: ")
+    print(quant_data.data[:1])
     quant_data.explore()
 
+    print('\n')
     print("Testing Qualitative Data Set...")
     qual_data = QualDataSet(paths['qual'])
     qual_data.clean()
-    print("First 5 rows of cleaned data: ")
-    print(qual_data.data[:5])
+    np.savetxt('cleaned_data/cleaned_qual_data.csv', qual_data.data, delimiter=',', fmt='%s')
+    print("Firs row of cleaned data: ")
+    print(qual_data.data[:1])
     qual_data.explore()
 
