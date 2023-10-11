@@ -43,6 +43,13 @@ class DataSet:
     def __readFromCSV(self, filename, header = True):
         """
         Reads in the data from a CSV file. The data is stored on a column basis similar to a parquet file to more easily account for data types.
+
+        Args:
+            filename (str): the name of the file to be read in
+            header (bool): whether or not the file has a header
+
+        Returns:
+            data (np.array): the data read in from the CSV file
         """
         try:
             with open(filename, 'r', encoding='utf-8') as f:
@@ -88,7 +95,13 @@ class DataSet:
     #abstract base class (ABC)
     def __load(self, filename):
         """
-        Loads the data from a CSV file
+        Loads the data from a CSV file and also calls the getType and readFromCSV functions
+
+        Args:
+            filename (str): the name of the file to be read in
+
+        Returns:
+            data (np.array): the data read in from the CSV file
         """
         print(f"Loading {filename}...")
 
@@ -109,6 +122,9 @@ class DataSet:
     def getType(self):
         """
         This function will be called later in each of the child classes to determine the type of data
+
+        Returns:
+            data_type (str): the type of data
         """
 
         #using while True to avoid infinite loop that I had earlier
@@ -142,7 +158,10 @@ class DataSet:
 #use inheritance to create TimeSeriesDataSet class
 class TimeSeriesDataSet(DataSet):
     """
-    Class for managing the time series dataset
+    Class for managing the time series dataset. Uses a median filter to clean the data. The data used in the test is mitbih_trian.csv
+
+    Attribute:
+        filename (str): the name of the file to be read in
     """
 
     #constructor
@@ -157,7 +176,13 @@ class TimeSeriesDataSet(DataSet):
     #override the clean and explore methods from the DataSet class to be specific to the TimeSeriesDataSet class
     def clean(self, filter_size = (3, 3)):
         """
-        Cleans the time series data set
+        Cleans the time series data set using a median filter
+
+        Args:
+            filter_size (tuple): the size of the filter to use
+
+        Returns:
+            filtered_data (np.array): the filtered data
         """
         print("Cleaning Time Series Data Set...")
 
@@ -195,7 +220,7 @@ class TimeSeriesDataSet(DataSet):
 
     def explore(self):
         """
-        Explores the time series data set by creating at least two visualizations.
+        Explores the time series data set by creating at least two visualizations. creates a scatter plot and a line plot.and a saves it to the path that is declared in the function (to visualizations folder). Additionally the user has the option of specifying a title, x-axis label, and y-axis label for the plot.
         """
         print("Exploring Time Series Data Set...")
 
@@ -277,7 +302,10 @@ class TextDataSet(DataSet):
 
     def clean(self):
         """
-        Cleans the text data set
+        Cleans the text data set. Removes stop words and lemmatizes the data.
+
+        Returns:
+            cleaned_data (np.array): the cleaned data
         """
         print("Cleaning Text Data Set...")
 
@@ -317,7 +345,7 @@ class TextDataSet(DataSet):
 
     def explore(self):
         """
-        Explores the text data set
+        Explores the text data set. Creates a word cloud and a histogram of the star ratings. The user has the option of specifying a title, x-axis label, and y-axis label for the plot.
         """
         print("Exploring Text Data Set...")
 
@@ -391,7 +419,7 @@ class TextDataSet(DataSet):
 #use inheritance to create QuantDataSet class
 class QuantDataSet(DataSet):
     """
-    Class for managing the quantitative dataset
+    Class for managing the quantitative dataset. 
     """
 
     #constructor
@@ -406,7 +434,13 @@ class QuantDataSet(DataSet):
     #override the clean and explore methods from the DataSet class to be specific to the QuantDataSet class
     def clean(self, header = True):
         """
-        Cleans the quantitative data set
+        Cleans the quantitative data set. Replaces missing values with the mean.
+
+        Args:
+            header (bool): whether or not the file has a header
+
+        Returns:
+            cleaned_data (np.array): the cleaned data
         """
         try: 
             if self.data is None:
@@ -428,7 +462,7 @@ class QuantDataSet(DataSet):
 
     def explore(self):
         """
-        Explores the quantitative data set
+        Explores the quantitative data set. Creates a bar plot of the normalized sales for a given product and a bar plot of the total sales for each week. The user has the option of specifying a title, x-axis label, and y-axis label for the plot.
         """
         print("Exploring Quant Data Set...")
 
@@ -530,7 +564,7 @@ class QuantDataSet(DataSet):
 #use inheritance to create QualDataSet class
 class QualDataSet(DataSet):
     """
-    Class for managing the qualitative dataset
+    Class for managing the qualitative dataset. 
     """
 
     #constructor
@@ -545,7 +579,10 @@ class QualDataSet(DataSet):
     #override the clean and explore methods from the DataSet class to be specific to the QualDataSet class
     def clean(self):
         """ 
-        Cleans the qualitative data set, replacing missing values in numeric columns with the median and replacing missing values in string columns with the mode.
+        Cleans the qualitative data set, replacing missing values in numeric columns with the median and replacing missing values in string columns with the mode. There are a lot of nan values towards the end of the data, I'm not sure if this was how it was intended in the prompt, but I still consider nan a value. So if nan is the most common response empty values will be replaced with nan. Some questions have very few responses. 
+
+        Returns:
+            cleaned_data (np.array): the cleaned data
         """
         print("Cleaning Qual Data Set...")
 
@@ -578,7 +615,7 @@ class QualDataSet(DataSet):
                     
     def explore(self):
         """
-        Explores the qualitative data set. The first visualization will be a histogram showing the distribution of degrees from the survey. 
+        Explores the qualitative data set. The user has the option of specifying a title, x-axis label, and y-axis label for the plot. Creates a bar plot of the degrees of the respondents and a bar plot of the first recommended programming language for data science.
         """
         print("Exploring Qual Data Set...")
 
@@ -603,6 +640,7 @@ class QualDataSet(DataSet):
             x_label = "Degree"
             y_label = "Frequency"
 
+        #creating labels so the x-axis is not so cluttered
         val_labels = {
             "Doctoral degree": "Doctoral",
             "Master’s degree": "Master’s",
@@ -746,6 +784,15 @@ class Experiment:
         Creates a confusion matrix
         """
         print("Creating confusion matrix...")
+
+
+#I have created a bash script to ruan all of this automatically so the grader doesn't have to give input for each of the data sets could be annoying when grading multple people's projects
+
+#cleaned data and visualizations are saved to the cleaned_data and visualizations folders respectively
+
+#data is pulled from the data folder
+
+#all paths are refrenced locally
 
 #create a main function to test all of my updates
 if __name__ == "__main__":
