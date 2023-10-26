@@ -1,9 +1,9 @@
 #* project_deliverable_3.ipynb
 #*
 #* ANLY 555 2023
-#* Project <>
+#* Project deliverable 3
 #*
-#* Due on: 10/25/2023
+#* Due on: 10/27/2023
 #* Author(s): Landon Carpenter
 #*
 #*
@@ -86,10 +86,6 @@ class DataSet:
             print(f"Error reading {filename}: {str(e)}")
 
         return self.data
-
-                    
-                        
-
 
 
     #abstract base class (ABC)
@@ -876,7 +872,7 @@ class Experiment:
         for classifier, acc in scores.items():
             print(f"{classifier}: {acc:.5f}")
 
-    def __confusionMatrix(self):
+    def confusionMatrix(self):
         """
         Creates a confusion matrix
         """
@@ -1028,4 +1024,4 @@ if __name__ == "__main__":
     print(my_experiment.pred_matrix)
 
     #create a confusion matrix
-    my_experiment._Experiment__confusionMatrix()
+    my_experiment.confusionMatrix()
