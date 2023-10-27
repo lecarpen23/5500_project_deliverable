@@ -729,6 +729,21 @@ class ClassifierAlgorithm:
         """
         print("Testing...")
 
+"""
+SIMPLE KNN CLASSIFIER COMPLEXITY ANALYSIS
+
+#each line necessary has a comment to the right with the space and time complexity.
+
+Space Complexity:
+    S(n) = O(n)
+
+Time Complexity:
+    T(n) = O(n^2 log n)
+
+Big O:
+    O(n^2 log n)
+"""
+
 #create class for simpe KNN that inherets from ClassifierAlgotithm
 class simpleKNNClassifier(ClassifierAlgorithm):
     """
@@ -739,9 +754,9 @@ class simpleKNNClassifier(ClassifierAlgorithm):
         Initializes the simpleKNNClassifier class
         """
         super().__init__()
-        self.data = None
-        self.labels = None
-        self.pred_labels = None
+        self.data = None # S(n) T(1)
+        self.labels = None # S(n) T(1)
+        self.pred_labels = None # S(n) T(1)
 
     def train(self, train_data, train_labels):
         """
@@ -753,35 +768,35 @@ class simpleKNNClassifier(ClassifierAlgorithm):
         """
         print("Training simple KNN...")
 
-        self.data = train_data
-        self.labels = train_labels
+        self.data = train_data # S(n) T(1)
+        self.labels = train_labels # S(n) T(1)
 
     def test(self, test_data, k):
         """
         Tests the simple KNN classifier
         """
-        preds = []
+        preds = [] # S(n) T(1)
 
         for test in test_data:
             #get the distance from the test to each sample
-            samples = np.linalg.norm(self.data - test, axis=1)
+            samples = np.linalg.norm(self.data - test, axis=1) # S(n) T(n) 
             #sort the samples and get indices of the k closest
-            sorted_samples = np.argsort(samples)[:k]
+            sorted_samples = np.argsort(samples)[:k] #S(n log n) T(n log n)
 
-            counts = {}
+            counts = {} # S(c) T(1) c is the number of classes
             #count the number of times each label appears
             for i in sorted_samples:
-                label = self.labels[i]
+                label = self.labels[i] #S(n) T(n)
                 if label in counts:
-                    counts[label] += 1
+                    counts[label] += 1 #S(n) T(n)
                 else:
-                    counts[label] = 1
+                    counts[label] = 1 #S(n) T(n)
 
             #get the most common label
-            mode = max(counts, key = counts.get)
-            preds.append(mode)
+            mode = max(counts, key = counts.get) #S(n) T(n)
+            preds.append(mode) #S(n) T(n)
 
-        self.pred_labels = np.array(preds)
+        self.pred_labels = np.array(preds) #S(n) T(1)
         return preds
 
 
@@ -845,6 +860,18 @@ class Experiment:
                 preds = classifier.test(test_data, k=CV_k)
                 self.pred_matrix[i * fold_size: (i + 1) * fold_size, idx] = preds
 
+    """
+    Score Complexity Analysis
+
+    Space Complexity:
+        S(n) = O(c) where c is the number of classifiers
+
+    Time Complexity:
+        T(n) = O(c*n) same as above
+
+    Big O:
+        O(c*n)
+    """
 
     def score(self):
         """
@@ -853,25 +880,37 @@ class Experiment:
         print("Scoring...")
         #calculate the accuracy score of the preds in pred_matrix, by computing an accuracy score from scratch
         #get the number of correct predictions
-        scores = {}
+        scores = {} # S(c) T(1) c is the number of classifiers
         for i, classifier in enumerate(self.classifiers):
             #get the preds for the classifier
-            preds = self.pred_matrix[:, i]
+            preds = self.pred_matrix[:, i] # S(n) T(n)
 
             #get the number of correct predictions
-            correct = np.sum(preds == self.labels)
+            correct = np.sum(preds == self.labels) #S(1) T(n)
 
             #get the accuracy score
-            score = correct / len(self.labels)
+            score = correct / len(self.labels) #S(1) T(1)
 
             #store the score
-            scores[classifier.__class__.__name__] = score
+            scores[classifier.__class__.__name__] = score #S(1) T(1)
         
         #print the results as a table
         print("Scores: ")
         for classifier, acc in scores.items():
             print(f"{classifier}: {acc:.5f}")
 
+    """
+    Confusion Matrix Complexity Analysis
+
+    Space Complexity:
+        S(n) = O(c) where c is the number of classifiers
+
+    Time Complexity:
+        T(n) = O(c*n) same as above
+
+    Big O:
+        O(c*n)
+    """
     def confusionMatrix(self):
         """
         Creates a confusion matrix
@@ -879,14 +918,14 @@ class Experiment:
         print("Creating confusion matrix...")
         #initiatiate the matrix with zeros
         for i, classifier in enumerate(self.classifiers):
-            tp, fp, tn, fn = 0, 0, 0, 0
+            tp, fp, tn, fn = 0, 0, 0, 0 # S(1) T(1)
 
             #get the preds for the classifier
-            preds = self.pred_matrix[:, i]
+            preds = self.pred_matrix[:, i] # S(n) T(n)
 
             #get counts for mat
             for j in range(len(preds)):
-                if self.labels[j] == 1 and preds[j] == 1:
+                if self.labels[j] == 1 and preds[j] == 1: # T(1) this applies to each if statement in this loop
                     tp += 1
                 elif self.labels[j] == 0 and preds[j] == 1:
                     fp += 1
@@ -895,10 +934,10 @@ class Experiment:
                 elif self.labels[j] == 0 and preds[j] == 0:
                     tn += 1
 
-            conf_mat = np.array([[tp, fp], [fn, tn]])
+            conf_mat = np.array([[tp, fp], [fn, tn]]) # S(1) T(1)
 
-            fig, ax = plt.subplots()
-            ax.axis('tight')
+            fig, ax = plt.subplots() # S(1) T(1)
+            ax.axis('tight') 
             ax.axis('off')
             ax.table(cellText=conf_mat, colLabels=['Predicted 1', 'Predicted 0'], rowLabels=['Actual 1', 'Actual 0'], loc='center')
             ax.set_title(f"Confusion Matrix for {classifier.__class__.__name__}")
