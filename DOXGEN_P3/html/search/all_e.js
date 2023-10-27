@@ -1,0 +1,15 @@
+var searchData=
+[
+  ['test_0',['test',['../namespacetest.html',1,'test'],['../classproject__deliverable__1_1_1_classifier_algotithm.html#ad68ef59601d322c15da1980dda7f5404',1,'project_deliverable_1.ClassifierAlgotithm.test()'],['../classproject__deliverable__2_1_1_classifier_algotithm.html#ac304dc44a3b8a11659cb97748c8f26f2',1,'project_deliverable_2.ClassifierAlgotithm.test()'],['../classproject__deliverable__3_1_1_classifier_algorithm.html#a2669f9915e117287bdd8da802523cca4',1,'project_deliverable_3.ClassifierAlgorithm.test()'],['../classproject__deliverable__3_1_1simple_k_n_n_classifier.html#aad990344dd59fa2dea490773bfd8f0eb',1,'project_deliverable_3.simpleKNNClassifier.test()']]],
+  ['test_2epy_1',['test.py',['../test_8py.html',1,'']]],
+  ['test_5fdata_2',['test_data',['../namespaceproject__deliverable__3.html#a552c85409d551e64eeeef380bec2fe11',1,'project_deliverable_3']]],
+  ['test_5flabels_3',['test_labels',['../namespaceproject__deliverable__3.html#a4672d62d11082e8a957e4c5d56985653',1,'project_deliverable_3']]],
+  ['text_5fdata_4',['text_data',['../namespaceproject__deliverable__2.html#a963f1faadfba133c49a499c65716af46',1,'project_deliverable_2']]],
+  ['textdataset_5',['textdataset',['../classproject__deliverable__2_1_1_text_data_set.html',1,'project_deliverable_2.TextDataSet'],['../classproject__deliverable__3_1_1_text_data_set.html',1,'project_deliverable_3.TextDataSet']]],
+  ['time_5fdata_6',['time_data',['../namespaceproject__deliverable__2.html#a7b2f2de86461682cf2b77b77de77a07a',1,'project_deliverable_2']]],
+  ['timeseriesdataset_7',['timeseriesdataset',['../classproject__deliverable__1_1_1_time_series_data_set.html',1,'project_deliverable_1.TimeSeriesDataSet'],['../classproject__deliverable__2_1_1_time_series_data_set.html',1,'project_deliverable_2.TimeSeriesDataSet'],['../classproject__deliverable__3_1_1_time_series_data_set.html',1,'project_deliverable_3.TimeSeriesDataSet']]],
+  ['train_8',['train',['../classproject__deliverable__1_1_1_classifier_algotithm.html#a13c25c450862da9ea563de3dcbdd2455',1,'project_deliverable_1.ClassifierAlgotithm.train()'],['../classproject__deliverable__2_1_1_classifier_algotithm.html#ae74b7a8fb526441245c1d64156bfe631',1,'project_deliverable_2.ClassifierAlgotithm.train()'],['../classproject__deliverable__3_1_1_classifier_algorithm.html#a386f58bd40e9065fa1274e01c7fcbf1c',1,'project_deliverable_3.ClassifierAlgorithm.train()'],['../classproject__deliverable__3_1_1simple_k_n_n_classifier.html#a3f9a0df4f6ed78688ab46f1a44df50dd',1,'project_deliverable_3.simpleKNNClassifier.train()']]],
+  ['train_5fdata_9',['train_data',['../namespaceproject__deliverable__3.html#a21655b6dfa38ae70c98d72eb018a19d5',1,'project_deliverable_3']]],
+  ['train_5flabels_10',['train_labels',['../namespaceproject__deliverable__3.html#a04f80365d190bb345419d28d59a714d8',1,'project_deliverable_3']]],
+  ['ts_5fdataset_11',['ts_dataset',['../namespaceproject__deliverable__1.html#a52bf9156d42852b5918c13a01acb16b4',1,'project_deliverable_1.ts_dataset'],['../namespacetest.html#aa5599ac2810390c59a591141824f4959',1,'test.ts_dataset']]]
+];
