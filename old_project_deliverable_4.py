@@ -709,7 +709,7 @@ class QualDataSet(DataSet):
 #create class for the classifier 
 class ClassifierAlgorithm:
     """
-    ClassifierAlgorithm ABC class for managing the classifier algorithm
+    Class for managing the classifier algorithm
     """
     def __init__(self):
         """
@@ -721,13 +721,13 @@ class ClassifierAlgorithm:
         """
         Trains the classifier algorithm
         """
-        print("Not Training in Classifier Algorithm Class...")
+        print("Training...")
 
     def test(self, test_data, k):
         """
         Tests the classifier algorithm
         """
-        print("Not Testing in Classifier Algorithm Class...")
+        print("Testing...")
 
 """
 SIMPLE KNN CLASSIFIER COMPLEXITY ANALYSIS
@@ -772,28 +772,32 @@ class simpleKNNClassifier(ClassifierAlgorithm):
         self.data = train_data # S(n) T(1)
         self.labels = train_labels # S(n) T(1)
 
-    def test(self, test_data, k):
+    def test(self, test_data):
         """
         Tests the simple KNN classifier
         """
+        print("Testing simple KNN...")
         preds = [] # S(n) T(1)
 
         for test in test_data:
             #get the distance from the test to each sample
-            samples = np.linalg.norm(self.data - test, axis=1) # S(n) T(n) 
+            dists = np.linalg.norm(self.data - test, axis=1) # S(n) T(n) 
             #sort the samples and get indices of the k closest
-            sorted_samples = np.argsort(samples)[:self.k] #S(n log n) T(n log n)
+            sorted_samples = np.argsort(dists)[:self.k] #S(n log n) T(n log n)
 
             counts = {} # S(c) T(1) c is the number of classes
 
             #count the number of times each label appears
             for i in sorted_samples:
                 label = self.labels[i] #S(n) T(n)
-                counts[label] = counts.get(label, 0) + 1 #S(n) T(n)
+                if label in counts:
+                    counts[label] += 1
+                else:
+                    counts[label] = 1
 
             #get the most common label
-            mode = max(counts, key = counts.get) #S(n) T(n)
-            preds.append(mode) #S(n) T(n)
+            pred_label = max(counts, key = counts.get) #S(n) T(n)
+            preds.append(pred_label) #S(n) T(n)
 
         self.pred_labels = np.array(preds) #S(n) T(1)
         return preds
@@ -821,6 +825,7 @@ class simpleKNNClassifier(ClassifierAlgorithm):
 
             #send counts to probs
             probs[i] = vote_count / self.k #S(n) T(1)
+            print(f'Probs: {probs[i]}')
 
         return probs #S(n) T(1)
     
@@ -832,145 +837,18 @@ class simpleKNNClassifier(ClassifierAlgorithm):
         print("Predicting probability...")
 
         probs = self.pred_knn(test_data) #S(n) T(1)
+        #print running predict_proba
+        print(f'Predict Proba: {probs}')
         return probs #S(n) T(1)
 
 
-class DecisionNode:
-    #init method
-    def __init__(self, feature_idx=None, threshold=None, left=None, right=None, label=None, label_dist=None):
-        self.feature_idx = feature_idx
-        self.threshold = threshold
-        self.left = left
-        self.right = right
-        self.label = label
-        self.label_dist = label_dist
-
-class Tree_str:
+#create class for kdTree KNN that inherets from ClassifierAlgotithm
+class kdTreeKNNClassifier(ClassifierAlgorithm):
     """
-    Tree ABC
+    Class for managing the kdTree KNN classifier
     """
-    def __str__(self):
-        pass
-    def forTreeVIs(self, node, depth=0, prefix="Root"):
-        pass
-
-class decisionTreeClassifier(ClassifierAlgorithm, Tree_str):
-    #init method
-    def __init__(self, max_depth=3, default_label=0):
-        self.max_depth = max_depth
-        self.root = None
-        self.default_label = default_label
-
-    def train(self, training_data, training_labels):
-        self.root = self.make_tree(training_data, training_labels)
-
-    def make_tree(self, data, labels, current_depth=0):
-        n_samples, n_features = data.shape
-
-        if current_depth >= self.max_depth or n_samples == 0 or len(set(labels)) == 1:
-            default_label = self.most_common_label(labels)
-            label = self.most_common_label(labels) if n_samples > 0 else default_label
-            return DecisionNode(label=label)
-        
-        #get the best split for the data
-        best_feature, best_threshold = self.best_split(data, labels)
-
-        #create left and right idxs
-        left_idxs = data[:, best_feature] < best_threshold
-        right_idxs = ~left_idxs
-
-        #deal with empty splits
-        if np.sum(left_idxs) == 0 or np.sum(right_idxs) == 0:
-            default_label = self.most_common_label(labels)
-            label = self.most_common_label(labels) if n_samples > 0 else default_label
-            return DecisionNode(label=label)
-
-        #create left and right subtrees
-        left_sub = self.make_tree(data[left_idxs], labels[left_idxs], current_depth + 1)
-        right_sub = self.make_tree(data[~left_idxs], labels[~left_idxs], current_depth + 1)
-
-        return DecisionNode(feature_idx=best_feature, threshold=best_threshold, left=left_sub, right=right_sub)
-    
-    #create the most common label method
-    def most_common_label(self, labels):
-        if len(labels) == 0:
-            return self.default_label
-        return np.argmax(np.bincount(labels))
-        
-    def best_split(self, data, labels):
-        n_samples, n_features = data.shape
-        #find the best feature and threshold to split the data. Using Ginis impurity as the metric
-        best_feature, best_threshold = None, None
-        best_gini = 1.0 #worst possible gini index
-
-        n_features = data.shape[1]
-        for feature_idx in range(n_features):
-            thresholds = np.unique(data[:, feature_idx])
-            for threshold in thresholds:
-                gini = self.get_gini(data, labels, feature_idx, threshold)
-                if gini < best_gini:
-                    best_gini = gini
-                    best_feature = feature_idx
-                    best_threshold = threshold
-
-        return best_feature, best_threshold
-    
-    def get_gini(self, data, labels, feature_idx, threshold):
-        #get the gini index for splitting the data
-        left_labels = labels[data[:, feature_idx] < threshold]
-        right_labels = labels[data[:, feature_idx] >= threshold]
-        #calculate the gini index for the left and right labels
-        left_gini = 1 - sum([(np.sum(left_labels == label) / len(left_labels)) ** 2 for label in np.unique(left_labels)])
-        right_gini = 1 - sum([(np.sum(right_labels == label) / len(right_labels)) ** 2 for label in np.unique(right_labels)])
-        #calculate the weighted gini index
-        n = len(labels)
-        weighted_gini = (len(left_labels) / n) * left_gini + (len(right_labels) / n) * right_gini
-        return weighted_gini
-    
-    def _predict(self, sample, node = None):
-        if node is None:
-            return self.default_label
-        if node.label is not None:
-            return node.label
-        if sample[node.feature_idx] < node.threshold:
-            return self._predict(sample, node.left)
-        else:
-            return self._predict(sample, node.right)
-        
-
-    def showTree(self, node, depth=0, prefix="Root"):
-        """
-        Create a string representation of the tree.
-        """
-        result = ""
-
-        #if the node is a leaf
-        if node is not None:
-            indent = "  " * depth
-            if node.label is not None:
-                result += f"{indent}{prefix} - Leaf: [{node.label}]\n"
-            else:
-                result += f"{indent}{prefix} - [X{node.feature_idx} <= {node.threshold}]\n"
-                result += self.printTree(node.left, depth + 1, "Left")
-                result += self.printTree(node.right, depth + 1, "Right")
-        return result
-    
-    def forTreeVis(self, node, depth=0, prefix="Root"):
-        """
-        Print the string representation of the tree. That can be loaded into http://mshang.ca/syntree/ for visualization.
-        """
-        if node is None:
-            return ""
-        
-        if node.label is not None:
-            return f"([{prefix} {node.label}])"
-        
-        condition = f'X{node.feature_idx} <= {node.threshold}'
-        left = self.forTreeVis(node.left, depth + 1, "Left")
-        right = self.forTreeVis(node.right, depth + 1, "Right")
-
-        return f"([{prefix} {condition} {left} {right}])"
-
+    def __init__(self):
+        super().__init__()
 
 #create the Experiment class that will run cross validation, get a score given k and, and create a confusion matrix
 class Experiment:
@@ -1035,23 +913,21 @@ class Experiment:
             if hasattr(classifier, 'predict_proba'):
                 pred_probs = classifier.predict_proba(self.data)
 
-                if pred_probs is not None and pred_probs.size > 0:
+                if pred_probs.ndim == 1:
+                    pred_probs = np.array([1 - pred_probs, pred_probs]).T
 
-                    if pred_probs.ndim == 1:
-                        pred_probs = np.vstack((1 - pred_probs, pred_probs)).T
+                positive_class_probs = pred_probs[:, 1]
 
-                    positive_class_probs = pred_probs[:, 1]
+                #get true and false positive rates
+                tpr, fpr, _ = self.get_tpr_fpr(self.labels, positive_class_probs)
+                roc_auc = np.trapz(tpr, fpr)
 
-                    #get true and false positive rates
-                    tpr, fpr, _ = self.get_tpr_fpr(self.labels, positive_class_probs)
-                    roc_auc = np.trapz(tpr, fpr)
-
-                    plt.plot(fpr, tpr, label=f"{classifier.__class__.__name__} (area = {roc_auc:.2f})")
+                plt.plot(fpr, tpr, label=f"{classifier.__class__.__name__} (area = {roc_auc:.2f})")
 
 
-                else:
-                    print(f'Error creating ROC curve for {classifier.__class__.__name__}')
-                    continue
+            else:
+                print(f'Error creating ROC curve for {classifier.__class__.__name__}')
+                continue
 
         plt.plot([0, 1], [0, 1], 'k--', label='Chance')
         plt.xlabel('False Positive Rate')
@@ -1185,6 +1061,131 @@ class Experiment:
 
             #save the plot
             plt.savefig(f'visualizations/Confusion_Matrix_{classifier.__class__.__name__}.png')
+                        
+
+class DecisionNode:
+    #init method
+    def __init__(self, feature_idx=None, threshold=None, left=None, right=None, label=None, label_dist=None):
+        self.feature_idx = feature_idx
+        self.threshold = threshold
+        self.left = left
+        self.right = right
+        self.label = label
+        self.label_dist = label_dist
+
+class DecisionTreeClassifier(ClassifierAlgorithm):
+    #init method
+    def __init__(self, max_depth=3):
+        self.max_depth = max_depth
+        self.root = None
+
+    def train(self, training_data, training_labels):
+        self.root = self.make_tree(training_data, training_labels)
+    
+    def get_leaf_class(self, sample, node=None):
+        if node is None:
+            node = self.root
+        if node.label is not None:
+            return node.label
+        if sample[node.feature_idx] < node.threshold:
+            return self.get_leaf_class(sample, node.left)
+        else:
+            return self.get_leaf_class(sample, node.right)
+        
+    def get_leaf_dist(self, sample, node=None):
+        if node is None:
+            node = self.root
+        if node.label is not None:
+            return node.label_dist
+        if node.threshold is None or sample[node.feature_idx] < node.threshold:
+            return self.get_leaf_dist(sample, node.left)
+        else:
+            return self.get_leaf_dist(sample, node.right)
+
+    def make_tree(self, data, labels, current_depth=0):
+        n_samples, n_features = data.shape
+
+        if current_depth >= self.max_depth or n_samples == 0 or len(np.unique(labels)) == 1:
+            label_counts = np.bincount(labels)
+            label_dist = label_counts / len(labels)
+            most_common = np.argmax(label_counts)
+            return DecisionNode(label=most_common)
+        
+        #get the best split for the data
+        best_feature, best_threshold = self.best_split(data, labels, n_samples, n_features)
+
+        #grow the tree recursively
+        if best_feature is not None:
+            left_idxs = data[:, best_feature] < best_threshold
+            left_node = self.make_tree(data[left_idxs], labels[left_idxs], current_depth + 1)
+            right_node = self.make_tree(data[~left_idxs], labels[~left_idxs], current_depth + 1)
+            return DecisionNode(feature_idx=best_feature, threshold=best_threshold, left=left_node, right=right_node)
+        else:
+            label_counts = np.bincount(labels)
+            label_dist = label_counts / len(labels)
+            most_common = np.argmax(label_counts)
+            return DecisionNode(label=most_common, label_dist=label_dist)
+        
+    def best_split(self, data, labels, n_samples, n_features):
+        #find the best feature and threshold to split the data. Using Ginis impurity as the metric
+        best_feature, best_threshold = None, None
+        best_gini = 1.0 #worst possible gini index
+
+        for feature_idx in range(n_features):
+            thresholds = np.unique(data[:, feature_idx])
+            for threshold in thresholds:
+                gini = self.get_gini(data, labels, feature_idx, threshold)
+                if gini < best_gini:
+                    best_gini = gini
+                    best_feature = feature_idx
+                    best_threshold = threshold
+
+        return best_feature, best_threshold
+    
+    def get_gini(self, data, labels, feature_idx, threshold):
+        #get the gini index for splitting the data
+        left_labels = labels[data[:, feature_idx] < threshold]
+        right_labels = labels[data[:, feature_idx] >= threshold]
+        #calculate the gini index for the left and right labels
+        left_gini = 1 - sum([(np.sum(left_labels == label) / len(left_labels)) ** 2 for label in np.unique(left_labels)])
+        right_gini = 1 - sum([(np.sum(right_labels == label) / len(right_labels)) ** 2 for label in np.unique(right_labels)])
+        #calculate the weighted gini index
+        weighted_gini = (len(left_labels) / len(labels)) * left_gini + (len(right_labels) / len(labels)) * right_gini
+        return weighted_gini
+    
+    def predict_proba(self, data):
+        return np.array([self.get_leaf_dist(sample) for sample in data])
+    
+    def _predict(self, sample, node = None):
+        if node.label is not None:
+            return node.label
+        if sample[node.feature_idx] < node.threshold:
+            return self._predict(sample, node.left)
+        else:
+            return self._predict(sample, node.right)
+        
+    def __str__(self):
+        """
+        Visually represent the tree
+        """
+        return self.printTree(self.root)
+    
+    def printTree(self, node, depth=0, prefix="Root"):
+        """
+        Create a string representation of the tree.
+        """
+        result = ""
+
+        #if the node is a leaf
+        if node is not None:
+            indent = "  " * depth
+            if node.label is not None:
+                result += f"{indent}{prefix} - Leaf: [{node.label}]\n"
+            else:
+                result += f"{indent}{prefix} - [X{node.feature_idx} <= {node.threshold}]\n"
+                result += self.printTree(node.left, depth + 1, "Left")
+                result += self.printTree(node.right, depth + 1, "Right")
+        return result
 
 
 #I have created a bash script to ruan all of this automatically so the grader doesn't have to give input for each of the data sets could be annoying when grading multple people's projects

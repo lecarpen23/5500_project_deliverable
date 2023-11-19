@@ -3,10 +3,9 @@ import matplotlib.pyplot as plt
 from project_deliverable_4 import DecisionTreeClassifier, Experiment, simpleKNNClassifier
 
 def generate_test_data(n_samples: int = 500, n_features: int = 2):
-    np.random.seed(42)
 
     X = np.random.randn(n_samples, n_features)
-    y = np.random.randint(0, 2, n_samples)
+    y = (np.sum(X, axis=1) > 0).astype(int)
 
     return X, y
 
@@ -19,7 +18,7 @@ def main():
     knn_classifier = simpleKNNClassifier(k=5)
 
     #set up my_experiment and run it using cross validation and then show the ROC, score, and confusion matrix
-    my_experiment = Experiment(data=X, labels=y, classifier=[decision_tree, knn_classifier])
+    my_experiment = Experiment(data=X, labels=y, classifiers=[decision_tree, knn_classifier])
 
     #print statements like this help me debug and I think they look nice
     print(f"Running experiment")
@@ -30,7 +29,7 @@ def main():
     print(f'Running score')
     my_experiment.score()
     print(f'Running confusion matrix')
-    my_experiment.confusion_matrix()
+    my_experiment.confusionMatrix()
     print(f'Creating Decision Tree Visualization')
     print(decision_tree)
 
@@ -38,8 +37,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
