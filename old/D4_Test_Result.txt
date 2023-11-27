@@ -1,0 +1,13 @@
+Binary Results
+$ ./bash.sh
+Simple KNN {0: 108, 1: 92}
+Simple KNN Accuracy: 0.975
+Decision Tree: {0: 106, 1: 94}
+Decision Tree Accuracy: 0.975
+
+Multi-class Results
+$ ./bash.sh
+Simple KNN {0: 55, 1: 74, 2: 71}
+Simple KNN Accuracy: 0.965
+Decision Tree: {0: 63, 1: 73, 2: 64}
+Decision Tree Accuracy: 0.905
