@@ -1,4 +1,4 @@
-Some notes before testing: You can specify titles and labels to make sure the exploration works or you can just clear out the visualizations folder so you know it is a new plot from this test. Because I decided to go with user input I couldnt use a bash script to automate this time so I recommend using each input below to test every type of data in the Heterogeneous class, after kicking off "test_project_deliverable_5a.py". 
+Some notes before testing: You can specify titles and labels to make sure the exploration works or you can just clear out the visualizations folder so you know it is a new plot from this test. Because I decided to go with user input I couldn't use a bash script to automate this time so I recommend using each input below to test every type of data in the Heterogeneous class, after kicking off "test_project_deliverable_5a.py". 
 
 data/Qual_Survey.csv
 qualitative 

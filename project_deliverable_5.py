@@ -19,7 +19,7 @@ import nltk
 from nltk.corpus import stopwords
 import numpy as np
 import matplotlib.pyplot as plt
-import os
+import os, random
 import wordcloud as wordcloud
 
 #create dataset class
@@ -1103,6 +1103,134 @@ class decisionTreeClassifier(ClassifierAlgorithm, Tree_str):
         right = self.forTreeVis(node.right, depth + 1, "Right")
 
         return f"([{prefix} {condition} {left} {right}])"
+    
+
+"""
+LSH KNN classifier complexity analysis analysis is in the docstring for the train, test, and get_candidate methods.
+"""
+
+class LSHKNNClassifier(ClassifierAlgorithm):
+    """
+    LSH KNN Classifier - local sensitivity hashing for nearest neighbor search
+    """
+    def __init__(self, k=5, num_tables=5, num_bits=10):
+        """
+        Initializes the LSHKNNClassifier class
+        """
+        super().__init__()
+        self.k = k
+        self.num_tables = num_tables
+        self.num_bits = num_bits
+        self.tables = [{} for _ in range(self.num_tables)]
+        self.labels = None
+
+    def _generate_hash(self, nfeatures):
+        """
+        generate random hash functions
+
+        Args:
+            nfeatures (int): number of features
+
+        Returns:
+            list of random vectors of size nfeatures
+        """
+        return [np.random.randn(nfeatures) for _ in range(self.num_tables)]
+    
+    def _hash_data(self, data, hash_fns):
+        """
+        hash the data
+
+        Args:
+            data (np.array): data to hash
+
+        Returns:
+            list of hashes for each table
+        """
+        return tuple(int(np.dot(data, hash_fn) >= 0) for hash_fn in hash_fns)
+    
+    def train(self, train_data, train_labels):
+        """
+        train the classifier
+        
+        Args:
+            train_data (np.array): training data
+            train_labels (np.array): training labels
+
+        Complexity Analysis:
+            S(n) = O(len(train_data))
+
+            T(n) = O(num_tables)
+
+            Big O:
+                O(num_tables)
+        """
+        nfeatures = train_data.shape[1]
+        self.hash_fns = [self._generate_hash(nfeatures) for _ in range(self.num_tables)]
+        self.labels = train_labels
+        self.train_data = train_data
+
+        for i in range(self.num_tables):
+            for idx, p in enumerate(train_data):
+                hash_val = self._hash_data(p, self.hash_fns[i])
+                if hash_val in self.tables[i]:
+                    self.tables[i][hash_val].append(idx)
+                else:
+                    self.tables[i][hash_val] = [idx]
+
+    def _get_candidate(self, tp):
+        """
+        Gets nearest neighbors for a test sample
+
+        Args:
+            test (np.array): test sample
+
+        Returns:
+            list of nearest neighbors
+
+        Complexity Analysis:
+            S(n) = O(len(train_data))
+
+            T(n) = O(num_tables)
+
+            Big O:
+                O(num_tables)
+        """
+        cands = set()
+        for i in range(self.num_tables):
+            hash_val = self._hash_data(tp, self.hash_fns[i])
+            #print(type(hash_val))
+            #print(hash_val)
+            cands.update(self.tables[i].get(hash_val, []))
+        return list(cands)
+    
+    def test(self, tp):
+        """
+        Tests the classifier
+
+        Args:
+            tp (np.array): test data
+
+        Returns:
+            list of predictions
+
+        Complexity Analysis:
+            S(n) = O(len(train_data))
+
+            T(n) = O(num_tables + len(train_data) log(len(train_data)) + k)
+
+            Big O:
+                O(len(train_data) log(len(train_data)))
+        """
+        cands_idxs = self._get_candidate(tp)
+        if not cands_idxs:
+            return None
+        
+        dist = [(idx, np.linalg.norm(self.train_data[idx] - tp)) for idx in cands_idxs]
+        dist.sort(key=lambda x: x[1])
+        kn_idxs = [idx for idx, _ in dist[:self.k]]
+
+        kn_labels = [self.labels[idx] for idx in kn_idxs]
+        return max(set(kn_labels), key=kn_labels.count)
 
 
 #create the Experiment class that will run cross validation, get a score given k and, and create a confusion matrix
